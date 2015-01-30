@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- 
+/* 
+ * Copyright (C) 2010 - 2012 Jenia Software. 
+ * 
+ * This file is part of Sinekarta 
+ * 
+ * Sinekarta is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by 
+ * the Free Software Foundation, either version 3 of the License, or 
+ * (at your option) any later version. 
+ * 
+ * Sinekarta is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+ * GNU General Public License for more details. 
+ * 
+ */ 
+-->
+<alfresco-config>
+	<config evaluator="string-compare" condition="DocLibCustom">
+		<dependencies>
+			<js src="/scripts/skpdfa-documentlibrary.js" />
+		</dependencies>
+	</config>
+	
+	<config evaluator="string-compare" condition="DocLibActions">
+      <actions>
+
+         <action id="document-skpdfaToPdfa" type="javascript" label="actions.document.skpdfaToPdfa">
+			<param name="function">onActionSkpdfaToPdfa</param>
+			<permissions>
+				<permission allow="true">Write</permission>
+			</permissions>
+			<!-- evaluator>org.sinekarta.alfresco.share.SinekartaDocumentTypeList</evaluator-->
+		 </action>
+		 
+      	</actions>
+      	
+		 <actionGroups>
+			<actionGroup id="document-browse">
+				<action index="900" id="document-skpdfaToPdfa" />
+			</actionGroup>
+			<actionGroup id="document-details">
+				<action index="900" id="document-skpdfaToPdfa" />
+			</actionGroup>
+			<actionGroup id="folder-browse">
+			</actionGroup>
+			<actionGroup id="folder-details">
+			</actionGroup>
+	 	</actionGroups>
+   </config> 
+ </alfresco-config>
