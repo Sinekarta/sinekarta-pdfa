@@ -26,6 +26,7 @@ import com.itextpdf.text.Image;
 import com.itextpdf.text.RectangleReadOnly;
 import com.itextpdf.text.pdf.PdfAConformanceLevel;
 import com.itextpdf.text.pdf.PdfAWriter;
+import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.RandomAccessFileOrArray;
 import com.itextpdf.text.pdf.codec.TiffImage;
@@ -102,94 +103,83 @@ public class PDFAConverter {
 		try {
 			if (sourceMimeType.equals(Constants.IMAGE_TIF)) {
 				
-				document = new Document();
-				PdfAWriter.getInstance(document, os);
-				document.open();
-				 
-				RandomAccessFileOrArray file = new RandomAccessFileOrArray(is);
-				int pages = TiffImage.getNumberOfPages(file);
-				for (int page = 1; page <= pages; page++){
-					Image img = TiffImage.getTiffImage(file, page);
-					document.add(img);
-				} 
-				
-//				RandomAccessFileOrArray ra = new RandomAccessFileOrArray(is);
-//				int comps = TiffImage.getNumberOfPages(ra);
-//				PdfContentByte cb = null;
-//				for (int c = 0; c < comps; ++c) {
-//					Image img = TiffImage.getTiffImage(ra, c + 1);
-//					if (img != null) {
-//			  			img.setAbsolutePosition(0, 0);
-//						// calcolo la dimensione della pagina 
-////						e' necessario riadattare la dimensione della pagina in base alla risoluzione dell''immagine
-////						se l''immagine e' 100x100 px e la risoluzione dell''immagine e' 300x300 dpi
-////						contando che il pdf e' 72x72 dpi, e' necessario riadattare width e height
-////						ribaltare questi ragionamenti su tutte le creazioni dei pdf a partire dall''immagine
-////						
-////						esempio pratico : 
-////							ho scannerizzato un A4 in bassa risoluzione (da verificare i dpi)
-////							mi ha creato un immagine con una certa dimensione (da verificare i pixel)
-////							l''immagine e' stata riportata nel PDF creando una pagina da 580,7 x 822,3 mm che non corrisponde a nessun formato carta
-////							Stampando successivamente questo documento scannerizzato la spampante si incarta perche' non sa che carta usare.
-////						
-////						Sapendo che il PDF lavora su 72 dpi e che la misura del foglio derivata e' di 580,7 x 822,3 mm capiamo quanto era grande l''immagine in pixel : 
-////						1 inch = 25.4 mm
-////						72 dpi = 72 * 25.4 = 1828,8 dpmm
-////						dimensione in px dell''immagine = (580,7 * 1828,8) x  (822,3 * 1828,8) = 1061984 x 1503822 px
-////						la risoluzione era (essendo il foglio un A4 = 210 x 297 mm): (72 * 580,7)/210 x (72 * 822,3)/297 = 200 x 200 risoluzione
-//	//
-////						
-////						La dimensione della pagina del pdf (da calcolare) deve essere rapportata a 72 DPI, quindi sapendo la risoluzione originaria : 
-////						
-////							dpiw/dimw = 72/x
-////							dimw/dpiw = x/72
-////							(dimw * 72)/dpiw = 72
-//			  			
-//			  			float width = 0; 
-//			  			if (img.getDpiX()!=0) {
-//			  				width = (img.getWidth() * 72)/img.getDpiX();
-//			  			} else if (resolution!=0) {
-//			  				width = (img.getWidth() * 72)/resolution;
-//			  			} else {
-//			  				width = img.getWidth();
-//			  			}
-//			  			float height = 0;
-//			  			if (img.getDpiY()!=0) {
-//			  				height = (img.getHeight() * 72)/img.getDpiY();
-//			  			} else if (resolution!=0) {
-//			  				height = (img.getHeight() * 72)/resolution;
-//			  			} else {
-//			  				height = img.getHeight();
-//			  			}
+				RandomAccessFileOrArray ra = new RandomAccessFileOrArray(is);
+				int comps = TiffImage.getNumberOfPages(ra);
+				PdfContentByte cb = null;
+				for (int c = 0; c < comps; ++c) {
+					Image img = TiffImage.getTiffImage(ra, c + 1);
+					if (img != null) {
+			  			img.setAbsolutePosition(0, 0);
+						// calcolo la dimensione della pagina 
+//						e' necessario riadattare la dimensione della pagina in base alla risoluzione dell''immagine
+//						se l''immagine e' 100x100 px e la risoluzione dell''immagine e' 300x300 dpi
+//						contando che il pdf e' 72x72 dpi, e' necessario riadattare width e height
+//						ribaltare questi ragionamenti su tutte le creazioni dei pdf a partire dall''immagine
 //						
-////	 					Eseguo resize dell'immagine per adeguarla alla dimensione del pdf					
-//						img.scaleToFit(width, height);
+//						esempio pratico : 
+//							ho scannerizzato un A4 in bassa risoluzione (da verificare i dpi)
+//							mi ha creato un immagine con una certa dimensione (da verificare i pixel)
+//							l''immagine e' stata riportata nel PDF creando una pagina da 580,7 x 822,3 mm che non corrisponde a nessun formato carta
+//							Stampando successivamente questo documento scannerizzato la spampante si incarta perche' non sa che carta usare.
 //						
-//						RectangleReadOnly pageSize = new RectangleReadOnly(width, height);
-//						if ( document==null ){
-//							// creo il PDF/A che andra' a contenere il documento scannerizzato
-//							document = new Document(pageSize,0,0,0,0);
-//							try {
-//								writer = PdfAWriter.getInstance(document, os, PdfAConformanceLevel.PDF_A_1B);
-//							} catch (Exception e) {
-//								tracer.error("Unable to convert from "
-//										+ sourceMimeType
-//										+ " to PDF/A. Prolem creating PDF/A document.",e);
-//								throw new PDFException("Unable to convert from "
-//										+ sourceMimeType
-//										+ " to PDF/A. Prolem creating PDF/A document.",e);
-//							}
-//							writer.createXmpMetadata();
-//							document.open();
-//							cb = writer.getDirectContent();
-//						}else{
-//							document.setPageSize(pageSize);
-//							document.newPage();
-//						}
-//						cb.addImage(img);
-//					}
-//				}
-//				ra.close();
+//						Sapendo che il PDF lavora su 72 dpi e che la misura del foglio derivata e' di 580,7 x 822,3 mm capiamo quanto era grande l''immagine in pixel : 
+//						1 inch = 25.4 mm
+//						72 dpi = 72 * 25.4 = 1828,8 dpmm
+//						dimensione in px dell''immagine = (580,7 * 1828,8) x  (822,3 * 1828,8) = 1061984 x 1503822 px
+//						la risoluzione era (essendo il foglio un A4 = 210 x 297 mm): (72 * 580,7)/210 x (72 * 822,3)/297 = 200 x 200 risoluzione
+	//
+//						
+//						La dimensione della pagina del pdf (da calcolare) deve essere rapportata a 72 DPI, quindi sapendo la risoluzione originaria : 
+//						
+//							dpiw/dimw = 72/x
+//							dimw/dpiw = x/72
+//							(dimw * 72)/dpiw = 72
+			  			
+			  			float width = 0; 
+			  			if (img.getDpiX()!=0) {
+			  				width = (img.getWidth() * 72)/img.getDpiX();
+			  			} else if (resolution!=0) {
+			  				width = (img.getWidth() * 72)/resolution;
+			  			} else {
+			  				width = img.getWidth();
+			  			}
+			  			float height = 0;
+			  			if (img.getDpiY()!=0) {
+			  				height = (img.getHeight() * 72)/img.getDpiY();
+			  			} else if (resolution!=0) {
+			  				height = (img.getHeight() * 72)/resolution;
+			  			} else {
+			  				height = img.getHeight();
+			  			}
+						
+//	 					Eseguo resize dell'immagine per adeguarla alla dimensione del pdf					
+						img.scaleToFit(width, height);
+						
+						RectangleReadOnly pageSize = new RectangleReadOnly(width, height);
+						if ( document==null ){
+							// creo il PDF/A che andra' a contenere il documento scannerizzato
+							document = new Document(pageSize,0,0,0,0);
+							try {
+								writer = PdfAWriter.getInstance(document, os, PdfAConformanceLevel.PDF_A_1B);
+							} catch (Exception e) {
+								tracer.error("Unable to convert from "
+										+ sourceMimeType
+										+ " to PDF/A. Prolem creating PDF/A document.",e);
+								throw new PDFException("Unable to convert from "
+										+ sourceMimeType
+										+ " to PDF/A. Prolem creating PDF/A document.",e);
+							}
+							writer.createXmpMetadata();
+							document.open();
+							cb = writer.getDirectContent();
+						}else{
+							document.setPageSize(pageSize);
+							document.newPage();
+						}
+						cb.addImage(img);
+					}
+				}
+				ra.close();
 			} else {
 				ImageReader reader = determineImageReader(is);
 				BufferedImage image = reader.read(0);
