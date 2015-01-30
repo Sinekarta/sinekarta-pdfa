@@ -1,0 +1,34 @@
+#summary Full list of supported file types
+
+= Full list of supported file types =
+
+*Text Formats*
+  * OpenDocument Text (`*`.odt)
+  * OpenOffice.org 1.0 Text (`*`.sxw)
+  * Rich Text Format (`*`.rtf)
+  * Microsoft Word (`*`.doc)
+  * WordPerfect (`*`.wpd)
+  * Plain Text (`*`.txt)
+  * HTML1 (`*`.html) 
+
+*Spreadsheet Formats*
+  * OpenDocument Spreadsheet (`*`.ods)
+  * OpenOffice.org 1.0 Spreadsheet (`*`.sxc)
+  * Microsoft Excel (`*`.xls)
+  * Comma-Separated Values (`*`.csv)
+  * Tab-Separated Values (`*`.tsv) 
+
+*Presentation Formats*
+  * OpenDocument Presentation (`*`.odp)
+  * OpenOffice.org 1.0 Presentation (`*`.sxi)
+  * Microsoft PowerPoint (`*`.ppt) 
+
+*Drawing Formats*
+  * OpenDocument Drawing (`*`.odg) 
+
+*Images*
+  * Tagged Image File Format (`*`.tiff or `*`.tif)
+  * Windows bitmap (`*`.bmp)
+  * Graphics Interchange Format (`*`.gif)
+  * Portable Network Graphics (`*`.png)
+  * Joint Photographic Experts Group (`*`.jpeg or `*`.jpg)
