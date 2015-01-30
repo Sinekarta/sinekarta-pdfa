@@ -3,28 +3,28 @@
 = Full list of supported file types =
 
 *Text Formats*
-  * OpenDocument Text (`*`.odt)
-  * OpenOffice.org 1.0 Text (`*`.sxw)
+  * Open Document Text (`*`.odt)
+  * Open Office.org 1.0 Text (`*`.sxw)
   * Rich Text Format (`*`.rtf)
   * Microsoft Word (`*`.doc)
-  * WordPerfect (`*`.wpd)
+  * Word Perfect (`*`.wpd)
   * Plain Text (`*`.txt)
   * HTML1 (`*`.html) 
 
 *Spreadsheet Formats*
-  * OpenDocument Spreadsheet (`*`.ods)
-  * OpenOffice.org 1.0 Spreadsheet (`*`.sxc)
+  * Open Document Spreadsheet (`*`.ods)
+  * Open Office.org 1.0 Spreadsheet (`*`.sxc)
   * Microsoft Excel (`*`.xls)
   * Comma-Separated Values (`*`.csv)
   * Tab-Separated Values (`*`.tsv) 
 
 *Presentation Formats*
-  * OpenDocument Presentation (`*`.odp)
-  * OpenOffice.org 1.0 Presentation (`*`.sxi)
-  * Microsoft PowerPoint (`*`.ppt) 
+  * Open Document Presentation (`*`.odp)
+  * Open Office.org 1.0 Presentation (`*`.sxi)
+  * Microsoft Power Point (`*`.ppt) 
 
 *Drawing Formats*
-  * OpenDocument Drawing (`*`.odg) 
+  * Open Document Drawing (`*`.odg) 
 
 *Images*
   * Tagged Image File Format (`*`.tiff or `*`.tif)
