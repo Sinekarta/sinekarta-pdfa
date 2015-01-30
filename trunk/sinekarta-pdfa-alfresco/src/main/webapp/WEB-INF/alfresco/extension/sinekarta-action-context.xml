@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+<!-- 
+/*
+ * Copyright (C) 2010 - 2012 Jenia Software.
+ *
+ * This file is part of Sinekarta
+ *
+ * Sinekarta is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Sinekarta is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ */
+ -->
+<beans>
+	<!-- 
+	reference to the bundle file of actions
+	 -->
+	<bean id="sinekarta.actionResourceBundles" parent="actionResourceBundles">
+		<property name="resourceBundles">
+			<list>
+				<value>alfresco.bundle.sinekarta-actions</value>
+				<!--value>bundle.sinekarta-actions</value-->
+			</list>
+		</property>
+	</bean>
+
+	<!-- bean managing openoffice socket connection -->
+	<bean id="sinekartaOpenOfficeConnection"
+		class="com.artofsolving.jodconverter.openoffice.connection.SocketOpenOfficeConnection" />
+
+
+	<!-- 
+	document conversion to PDF/A action
+	this action will convert all kind of documents to PDF/A
+	 -->
+	<bean id="sinekartaDocumentToPDFA" class="org.sinekartapdfa.alfresco.action.DocumentToPDFA"
+		parent="action-executer">
+		<property name="contentService">
+            <ref bean="ContentService" />
+        </property>
+		<property name="nodeService">
+			<ref bean="NodeService" />
+		</property>
+		<property name="connection">
+        	<ref bean="sinekartaOpenOfficeConnection" />
+		</property>
+		<property name="documentFormatsConfiguration">
+			<value>classpath:alfresco/extension/sinekarta-pdfa-alfresco/sinekarta-document-formats.xml</value>
+		</property>
+		<property name="publicAction">
+			<value>true</value>
+		</property>
+	</bean>
+
+</beans>

@@ -1,0 +1,226 @@
+<?xml version="1.0"?>
+
+<project name="sinekarta-pdfa-alfresco" default="full-deploy" basedir=".">
+	
+	<!-- 
+	 | Prerequisites:
+	 |  - in order to compile you need to have an installed alfresco.sdk, alfresco.sdk.path is then mandatory
+	 |  - the project.name is necessary to properly name the compilation products
+	 |  - the other user settings are mandatory only to the deploy target
+	 | The working directory is expected to contain a fresh alfresco instance named as ${alfresco.fresh.warname}.
+	 |
+	 | Main targets:
+	 |  - create-structure  - create the nested folders for allocating to the most common alfresco configurations
+	 |  - package-amp 		- generate the amp and store it into ${target.dir}/dist
+	 |  - deploy      		- install the amp into a fresh alfresco instance 
+	 |  - unpack-amp 		- copy the amp into the work folder and unpack it - for consultation propose only 
+	 |  - full-deploy 		- runs every target - with exception of create-structure
+	 |-->
+
+	<!-- User settings -->
+	<!-- Change these properties to adapt the script to your environment -->
+
+	<!-- verbose activation - if true, the ant task will print their operations on the console -->
+	<property name="verbose" 				value="false" />
+	<!-- project name - used to generate the JAR and AMP names -->
+	<property name="project.name" 			value="sinekarta-pdfa-alfresco" />
+	<!-- project short name - used to generate the nested folders in create-structure -->
+	<property name="project.package" 		value="org/sinekartapdfa" />
+	
+	<!-- alfresco environment localitions -->
+	<property name="alfresco.sdk.path" 		value="/jenia2.0/alfresco-sdk/alfresco-community-sdk-4.2.f" />
+	<property name="alfresco.mmt.path" 		value="/opt/alfresco-4.2.f/bin/alfresco-mmt.jar" />
+	
+	<!-- direct installation, test and consultation -->
+	<property name="work.dir" 				value="/jenia2.0/work" />
+	<property name="alfresco.fresh.warname"	value=".alfresco-original.war" />
+	<property name="alfresco.work.dirname"	value="alfresco" />
+	
+	
+	
+	<!-- Project structure -->
+	
+	<!-- base locations -->
+	<property name="workspace.dir" 		value="../.." />
+	<property name="super.dir"    		value=".." />
+	<property name="project.dir"	 	value="." />
+	<property name="source.dir"  		value="${project.dir}/src" />
+	<property name="target.dir"   		value="${project.dir}/target" />
+	
+	<!-- general resources -->
+	<property name="java.dir"    		value="${source.dir}/main/java" />
+	<property name="resources.dir" 		value="${source.dir}/main/resources" />
+	<property name="webapp.dir" 		value="${source.dir}/main/webapp" />
+
+	<!-- amp resources -->
+	<property name="config.dir"  		value="${webapp.dir}/WEB-INF" />
+	<property name="licences.dir"		value="${resources.dir}/licences" />
+	
+	
+	
+	<!-- System settings -->
+	<!-- You shouldn't need to change anything here -->
+	
+	<!-- compilation products -->
+	<property name="lib.dir"    		value="${target.dir}/dist/lib" />
+	<property name="amp.dir" 			value="${target.dir}/dist/${project.name}" />
+	<property name="amp.file" 			value="${target.dir}/dist/${project.name}.amp" />
+	
+	<!-- installation war and folders -->
+	<property name="alfresco.fresh.war"	value="${work.dir}/${alfresco.fresh.warname}" />
+	<property name="alfresco.work.war" 	value="${work.dir}/alfresco.war" />
+	<property name="alfresco.work.dir" 	value="${work.dir}/alfresco" />
+	<property name="amp.unpackDir" 		value="${work.dir}/${project.name}" />
+	
+	
+	
+	<!-- Dependencies management -->
+		
+	<!-- sinekarta-pdfa alfresco-tier modules -->
+	<property name="version"    		value="-1.0.0-SNAPSHOT" />
+	<property name="alfresco.jar"		value="sinekarta-pdfa-alfresco${version}.jar" />
+	<property name="commons.jar"		value="sinekarta-pdfa-commons${version}.jar" />
+
+	<!-- other maven dependencies 
+	 | Alfresco already provides the most part of the needed jar, such as:
+	 |  - apache-commons
+	 |  - javax.mail
+	 |  - jackson
+	 |  - joda-time
+	 |  - log4j
+	 |  - xalan
+	 | These will not need to be added to the amp libraries. The following jars will be imported
+	 | into the amp, ignoring the current declared by the pom.
+	 | Note that commons-lang3 will be added anyway since Alfresco use a too much dated version,
+	 | the apache retro-compatibily should avoid, anyway, any version conflict.
+	 |-->
+	<property name="dependencies.dir" 	value="${target.dir}/lib" />
+	<property name="commons-lang.jar"	value="commons-lang*.jar" />
+	<property name="json-lib.jar"		value="json-lib*.jar" />
+	<property name="ezmorph.jar"		value="ezmorph*.jar" />
+	<property name="jodconverter.jar"	value="jodconverter*.jar" />
+	<property name="itext.jar"			value="itext*.jar" />
+	
+	
+	
+	
+	<!-- Targets implementation-->
+	
+	<!-- create-structure: create the nested folders for allocating to the most common alfresco configurations -->
+	<target name="create-structure" >
+		<echo>Generating the java source folder...</echo>
+		<mkdir dir="${java.dir}" />
+		
+		<echo>Generating the amp structure: </echo>
+		<echo> - ${config.dir}/alfresco: alfresco module configuration files, imported into the module classpath</echo>
+		<mkdir dir="${config.dir}/alfresco" />
+		<mkdir dir="${config.dir}/alfresco/module/${project.name}" />
+		<mkdir dir="${config.dir}/alfresco/templates/webscripts/${project.package}" />
+		<mkdir dir="${config.dir}/alfresco/extension/${project.name}" />
+		<echo> - ${licences.dir}: specific module licence files, MMT internal usage</echo>
+		<mkdir dir="${licences.dir}" />
+	</target>
+
+	
+	<!-- package-amp - generate the amp and store it into ${target.dir}/dist --> 
+	
+	<target name="prepare-libs">
+		<echo>Clearing the ${lib.dir} folder</echo>
+		<delete dir="${lib.dir}" verbose="${verbose}" />
+    	<mkdir dir="${lib.dir}" />
+		<echo>dependencies dir : ${dependencies.dir}</echo>
+		<echo>Storing the dependencies into ${lib.dir} folder</echo>
+		<echo> - sinekarta-pdfa-alfresco dependencies</echo>
+		<copy toDir="${lib.dir}" overwrite="true" verbose="${verbose}">
+			<fileset dir="${dependencies.dir}" 								includes="${commons-lang.jar}" />
+			<fileset dir="${dependencies.dir}"								includes="${ezmorph.jar}" />
+			<fileset dir="${dependencies.dir}"								includes="${json-lib.jar}" />
+			<fileset dir="${dependencies.dir}"								includes="${jodconverter.jar}" />
+			<fileset dir="${dependencies.dir}"								includes="${jodconverter.jar}" />
+			<fileset dir="${dependencies.dir}"								includes="${itext.jar}" />
+			<fileset dir="${super.dir}/sinekarta-pdfa-commons/target" 		includes="${commons.jar}" />
+			<fileset dir="${super.dir}/sinekarta-pdfa-alfresco/target" 		includes="${alfresco.jar}" />
+		</copy>
+	</target>
+	
+    <target name="package-amp" depends="prepare-libs">
+    	<delete dir="${amp.dir}" verbose="${verbose}" />
+    	<mkdir dir="${amp.dir}" />
+    	<delete file="${amp.file}" verbose="${verbose}" />
+    	<echo>Generating the amp structure into ${amp.dir}:</echo>
+    	<echo> - /config</echo>
+    	<copy toDir="${amp.dir}/config" overwrite="true" verbose="${verbose}">
+    		<fileset dir="${config.dir}" excludes="**/module.properties, **/file-mapping.properties" />
+		</copy>
+    	<delete dir="${amp.dir}/config/alfresco/module" />
+    	<echo> - /lib</echo>
+    	<copy toDir="${amp.dir}/lib" overwrite="true" verbose="${verbose}">
+    		<fileset dir="${lib.dir}" />
+		</copy>
+		<echo> - module descriptor file and mapping</echo>
+    	<copy toDir="${amp.dir}" overwrite="true" verbose="${verbose}">
+	    	<fileset dir="${config.dir}/alfresco/module/${project.name}" includes="module.properties" />
+	    	<fileset dir="${config.dir}/alfresco/module/${project.name}" includes="file-mapping.properties" />
+		</copy>
+    	<echo>Generating ${amp.file}</echo>
+        <zip destfile="${amp.file}" >
+        	<fileset dir="${amp.dir}" />
+        </zip>
+    </target>
+	
+
+	
+	<!-- deploy - install the amp into a fresh alfresco instance -->
+	
+	<target name="deploy" description="Update the WAR file." >
+		<echo>Deleting the current work alfresco war and directory</echo>
+		<delete dir="${alfresco.work.dir}" verbose="${verbose}" />
+		<delete file="${alfresco.work.war}" verbose="${verbose}" />
+		<echo>Refreshing the alfresco work war at ${alfresco.work.war} with ${alfresco.fresh.war}</echo>
+		<copy toFile="${alfresco.work.war}" file="${alfresco.fresh.war}" overwrite="true" /> 
+		<echo>Installing ${amp.file} into ${alfresco.work.war}</echo>
+		<java jar="${alfresco.mmt.path}" fork="true" failonerror="true">
+		    <arg line="install ${amp.file} ${alfresco.work.war} -verbose -nobackup -force"/>
+		</java>
+		<echo>Unpacking ${alfresco.work.war} into ${alfresco.work.dir}</echo>
+		<unwar dest="${alfresco.work.dir}" src="${alfresco.work.war}" />
+		<echo>The module ${amp.file} has been installed into ${alfresco.work.dir}</echo>
+    	<echo>Suggestion: restart the webserver if running</echo>
+	</target>
+	
+	
+	
+	
+	<!-- full-deploy - runs every target - with exception of create-structure -->
+	
+	<target name="full-deploy" description="Update the WAR file." depends="package-amp, deploy">
+		<echo>The current alfresco instance at ${alfresco.work.war} has been replaced with a fresh one with the current amp distribution</echo>
+		<echo>Suggestion: restart the webserver if running</echo>
+	</target>
+	
+	
+	
+	<!-- unpack-amp - copy the amp into the work folder and unpack it - for consultation propose only -->
+
+	<target name="unpack-amp" depends="package-amp" description="Update the WAR file.">
+		<echo>Unpacking the amp into the work folder - for consultation propose only </echo>
+		<echo>Copying ${amp.file} into ${alfresco.work.dir}</echo>
+		<copy toDir="${work.dir}" file="${amp.file}" overwrite="true" />
+		<echo>Unpacking ${amp.file} into ${amp.unpackDir}</echo>
+		<unzip dest="${amp.unpackDir}" src="${amp.file}" />
+	</target>
+	
+	
+	
+	<!-- update-running-alfresco - update a running alfresco, does not need to restart tomcat -->
+
+	<target name="update-running-alfresco" depends="package-amp" description="Update a running alfresco">
+		<echo>Copying the current amp settings into the work alfresco instance at ${alfresco.work.dir}</echo>
+		<echo> - /config into alfresco/WEB-INF/classes/</echo>
+		<copy toDir="${alfresco.work.dir}/WEB-INF/classes" overwrite="true" verbose="${verbose}">
+    		<fileset dir="${amp.dir}/config" />
+		</copy>
+		<echo>The work alfresco instance has been updated</echo>
+		<echo>You do not need to restart tomcat unless you did not change any spring configuration file</echo>
+	</target>
+</project>

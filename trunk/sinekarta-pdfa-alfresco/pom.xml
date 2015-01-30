@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<name>sinekarta-pdfa-alfresco</name>
+	<artifactId>sinekarta-pdfa-alfresco</artifactId>
+
+	<parent>
+		<groupId>org.sinekarta</groupId>
+		<artifactId>sinekarta-pdfa</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+
+	<dependencies>
+		
+		<dependency>
+			<groupId>com.artofsolving</groupId>
+			<artifactId>jodconverter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>itext-pdfa</artifactId>
+		</dependency>
+		<!--dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>itextpdf</artifactId>
+			<version>5.3.5</version>
+		</dependency-->
+		
+		<!-- alfresco -->
+		<dependency>
+			<groupId>org.alfresco</groupId>
+			<artifactId>alfresco-repository</artifactId>
+			<exclusions>
+				<exclusion>
+	           			<groupId>xml-apis</groupId>
+  					<artifactId>xmlParserAPIs</artifactId>
+	            		</exclusion>
+			</exclusions>
+		</dependency>
+
+		<!-- sinekarta modules -->
+		<dependency>
+			<groupId>org.sinekarta</groupId>
+			<artifactId>sinekarta-pdfa-commons</artifactId>
+		</dependency>
+	</dependencies>
+
+	
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>target/lib</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<dependencies>
+	   				<dependency>
+					    <groupId>org.apache.ant</groupId>
+					    <artifactId>ant</artifactId>
+					    <version>1.9.2</version>
+					</dependency>
+					<dependency>
+					    <groupId>org.apache.ant</groupId>
+					    <artifactId>ant-launcher</artifactId>
+					    <version>1.9.2</version>
+					</dependency>
+				</dependencies>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<configuration>
+							<tasks>
+								<ant dir="." antfile="build.xml" target="full-deploy"/>
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
