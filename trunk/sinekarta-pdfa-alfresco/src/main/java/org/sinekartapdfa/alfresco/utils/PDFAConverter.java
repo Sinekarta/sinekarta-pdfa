@@ -233,7 +233,7 @@ public class PDFAConverter {
 				RectangleReadOnly pageSize = new RectangleReadOnly(width, height);
 				document = new Document(pageSize, 0,0,0,0);
 				try {
-					writer = PdfAWriter.getInstance(document, os/*, PdfAConformanceLevel.PDF_A_3A*/);
+					writer = PdfAWriter.getInstance(document, os, PdfAConformanceLevel.PDF_A_1B);
 				} catch (Exception e) {
 					tracer.error("Unable to convert from "
 							+ sourceMimeType
